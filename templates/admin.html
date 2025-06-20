@@ -1,0 +1,23 @@
+{{define "admin.html"}}
+{{template "header.html" .}}
+<div class="content">
+    <h1>Admin Panel</h1>
+    <h3>All Users</h3>
+    <div id="users-list">
+        {{range .Users}}
+            <div class="user-item">
+                <span class="user-name">{{.Username}}</span>
+                {{if ne .Username "admin"}}
+                <form action="/admin/delete" method="POST" style="display:inline; margin-left:10px;">
+                    <input type="hidden" name="id" value="{{.ID}}">
+                    <button type="submit" style="background:#d73a49;color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;">Delete</button>
+                </form>
+                {{end}}
+            </div>
+        {{else}}
+            <p>No users found.</p>
+        {{end}}
+    </div>
+</div>
+{{template "footer.html" .}}
+{{end}}

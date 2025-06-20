@@ -1,0 +1,28 @@
+{{define "pdfchat.html"}}
+{{template "header.html" .}}
+<div class="content">
+    <h1>PDF Chat</h1>
+    <div id="pdf-list">
+        {{range .PDFs}}
+            <div class="pdf-item">
+                <span class="sender">{{.Sender}}:</span>
+                <a href="/uploads/pdfs/{{.Filename}}" target="_blank">{{.Filename}}</a>
+                <span class="msg-time">{{.CreatedAt}}</span>
+                {{if $.IsAdmin}}
+                <form action="/pdfchat/delete" method="POST" style="display:inline; margin-left:10px;">
+                    <input type="hidden" name="id" value="{{.ID}}">
+                    <button type="submit" style="background:#d73a49;color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;">Delete</button>
+                </form>
+                {{end}}
+            </div>
+        {{else}}
+            <p>No PDF files yet.</p>
+        {{end}}
+    </div>
+    <form action="/pdfchat" method="POST" enctype="multipart/form-data" class="msg-form">
+        <input type="file" name="pdf" accept="application/pdf" required>
+        <button type="submit">Send PDF</button>
+    </form>
+</div>
+{{template "footer.html" .}}
+{{end}}

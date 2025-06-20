@@ -1,0 +1,17 @@
+{{define "register.html"}}
+{{template "header.html" .}}
+
+<div class="content">
+    <h1>Register</h1>
+    {{if .Error}}<p style="color:red">{{.Error}}</p>{{end}}
+    <form action="/register-form" method="POST">
+        <label>Username:</label><br>
+        <input type="text" name="username" required><br>
+        <label>Password:</label><br>
+        <input type="password" name="password" required><br>
+        <button type="submit">Register</button>
+    </form>
+</div>
+
+{{template "footer.html" .}}
+{{end}}

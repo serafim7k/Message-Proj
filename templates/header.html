@@ -1,0 +1,28 @@
+{{define "header.html"}}
+<link rel="stylesheet" href="/static/style.css">
+<header>
+    <h2>Messenger</h2>
+    <nav>
+        <a href="/">Home</a>
+        {{if .LoggedIn}}
+            <a href="/messenger">Messenger</a>
+            <a href="/photos">Photos</a>
+            <a href="/videos">Videos</a>
+            <a href="/music">Music</a>
+            <a href="/pdfchat">PDF Chat</a>
+            <a href="/about">About Us</a>
+        {{end}}
+        {{if not .LoggedIn}}
+            <a href="/register-form">Register</a>
+            <a href="/login-form">Login</a>
+        {{else}}
+            <a href="/profile">Profile</a>
+            <a href="/logout">Logout</a>
+        {{end}}
+        {{if .IsAdmin}}
+            <a href="/admin">Admin</a>
+        {{end}}
+    </nav>
+    <hr>
+</header>
+{{end}}

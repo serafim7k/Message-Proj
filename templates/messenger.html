@@ -1,0 +1,28 @@
+{{define "messenger.html"}}
+{{template "header.html" .}}
+<div class="content">
+    <h1>Messenger</h1>
+    <div id="messages-list">
+        {{range .Messages}}
+            <div class="message-item">
+                <span class="sender">{{.Sender}}:</span>
+                <span class="msg-content">{{.Content}}</span>
+                <span class="msg-time">{{.CreatedAt}}</span>
+                {{if $.IsAdmin}}
+                <form action="/messenger/delete" method="POST" style="display:inline; margin-left:10px;">
+                    <input type="hidden" name="id" value="{{.ID}}">
+                    <button type="submit" style="background:#d73a49;color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;">Delete</button>
+                </form>
+                {{end}}
+            </div>
+        {{else}}
+            <p>No messages yet.</p>
+        {{end}}
+    </div>
+    <form action="/messenger" method="POST" class="msg-form">
+        <textarea name="content" placeholder="Type your message..." required style="width:100%;min-height:60px;"></textarea>
+        <button type="submit">Send</button>
+    </form>
+</div>
+{{template "footer.html" .}}
+{{end}}

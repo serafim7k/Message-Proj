@@ -1,0 +1,9 @@
+{{define "profile.html"}}
+{{template "header.html" .}}
+<div class="content">
+    <h1>User Profile</h1>
+    <p>Username: {{.Username}}</p>
+    <a href="/">Back to Home</a>
+</div>
+{{template "footer.html" .}}
+{{end}}
