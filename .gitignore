@@ -1,0 +1,28 @@
+# Бинарники Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Кэш Go
+*.test
+*.out
+
+# IDE/Editor
+.vscode/
+.idea/
+*.swp
+
+# Базы данных
+*.db
+
+# Логи
+*.log
+
+# Загрузки пользователей
+uploads/
+
+# Системные файлы
+.DS_Store
+Thumbs.db

@@ -95,14 +95,26 @@ a:hover {
 
 /* Main content container styling */
 .content {
-    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    max-width: 1100px; /* было 800px */
     margin: 48px auto 0 auto;
     background: rgba(255,255,255,0.98);
     border-radius: 18px;
     box-shadow: 0 6px 32px rgba(36,41,47,0.10);
-    padding: 38px 36px 28px 36px;
+    padding: 38px 56px 28px 56px; /* увеличен внутренний отступ */
     min-height: 220px;
     animation: fadeIn 0.7s;
+    max-height: none;
+    overflow: visible;
+    padding-bottom: 70px;
+    overflow-x: hidden;
+    margin-bottom: 100px;
+    width: 100%;
+    max-width: 1400px;
+    min-width: 0;
+    padding-left: 5vw;
+    padding-right: 5vw;
 }
 
 @keyframes fadeIn {
@@ -150,7 +162,8 @@ form {
     flex-direction: column;
     gap: 14px;
     margin: 0 auto;
-    max-width: 370px;
+    max-width: 700px;
+    width: 100%;
 }
 
 label {
@@ -313,6 +326,35 @@ footer {
     font-size: 0.95em;
     margin-left: 10px;
 }
+.msg-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 0 auto;
+    max-width: 700px;
+    width: 100%;
+    flex-shrink: 0;
+    position: sticky;
+    bottom: 0;
+    background: #fff;
+    z-index: 2;
+    margin-bottom: 0;
+    padding-bottom: 8px;
+}
+
+/* Прокручиваемый список сообщений/музыки/фото внутри .content */
+#music-list,
+#messenger-list,
+#messages-list,
+#photos-list,
+#videos-list,
+#pdf-list {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    min-height: 0;
+    overflow-x: hidden;
+}
+
 .msg-form textarea {
     resize: vertical;
     border: 1.5px solid #b6c6e3;
@@ -342,12 +384,11 @@ footer {
     min-width: 0;
 }
 
-.photo-item, .video-item, .music-item, .pdf-item, .message-item, .user-item {
+.message-item, .user-item {
     background: #f7faff;
     border-radius: 7px;
     margin-bottom: 12px;
     padding: 10px 14px;
-    box-shadow: 0 1px 4px rgba(36,41,47,0.06);
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -355,6 +396,9 @@ footer {
     align-items: flex-start;
     width: 100%;
     min-width: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
 }
 
 .message-item.me {
@@ -368,16 +412,12 @@ footer {
     font-weight: 700;
 }
 
-.photo-item.me, .video-item.me, .music-item.me, .pdf-item.me, .user-item.me {
+.user-item.me {
     background: none;
     border: none;
     box-shadow: none;
 }
 
-.photo-item.me .sender,
-.video-item.me .sender,
-.music-item.me .sender,
-.pdf-item.me .sender,
 .user-item.me .sender {
     color: #28a745;
     font-weight: 700;
@@ -386,8 +426,10 @@ footer {
 /* Media queries for responsive design */
 @media (max-width: 600px) {
     .content {
-        max-width: 98vw;
-        padding: 18px 4vw 18px 4vw;
+        max-width: 99vw;
+        padding: 12px 2vw 0 2vw;
+        max-height: none;
+        padding-bottom: 60px;
     }
     header {
         border-bottom-left-radius: 0;
@@ -398,5 +440,17 @@ footer {
         border-top-right-radius: 0;
         font-size: 13px;
         padding: 12px 0 8px 0;
+    }
+}
+
+@media (max-width: 900px) {
+    .content {
+        max-width: 99vw;
+        padding-left: 2vw;
+        padding-right: 2vw;
+    }
+    form,
+    .msg-form {
+        max-width: 98vw;
     }
 }
