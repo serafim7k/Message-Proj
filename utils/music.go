@@ -13,7 +13,7 @@ type Music struct {
 }
 
 func AddMusic(db *sql.DB, senderID, filename string) error {
-	_, err := db.Exec("INSERT INTO music(sender_id, filename) VALUES ($1, $2)", senderID, filename)
+	_, err := db.Exec("INSERT INTO music(sender_id, filename) VALUES (?, ?)", senderID, filename)
 	return err
 }
 
@@ -35,11 +35,11 @@ func GetAllMusic(db *sql.DB) ([]Music, error) {
 
 func DeleteMusic(db *sql.DB, musicID string) error {
 	var filename string
-	err := db.QueryRow("SELECT filename FROM music WHERE id=$1", musicID).Scan(&filename)
+	err := db.QueryRow("SELECT filename FROM music WHERE id=?", musicID).Scan(&filename)
 	if err != nil {
 		return err
 	}
-	_, err = db.Exec("DELETE FROM music WHERE id=$1", musicID)
+	_, err = db.Exec("DELETE FROM music WHERE id=?", musicID)
 	if err != nil {
 		return err
 	}

@@ -13,7 +13,7 @@ type PDF struct {
 }
 
 func AddPDF(db *sql.DB, senderID, filename string) error {
-	_, err := db.Exec("INSERT INTO pdfs(sender_id, filename) VALUES ($1, $2)", senderID, filename)
+	_, err := db.Exec("INSERT INTO pdfs(sender_id, filename) VALUES (?, ?)", senderID, filename)
 	return err
 }
 
@@ -35,11 +35,11 @@ func GetAllPDFs(db *sql.DB) ([]PDF, error) {
 
 func DeletePDF(db *sql.DB, pdfID string) error {
 	var filename string
-	err := db.QueryRow("SELECT filename FROM pdfs WHERE id=$1", pdfID).Scan(&filename)
+	err := db.QueryRow("SELECT filename FROM pdfs WHERE id=?", pdfID).Scan(&filename)
 	if err != nil {
 		return err
 	}
-	_, err = db.Exec("DELETE FROM pdfs WHERE id=$1", pdfID)
+	_, err = db.Exec("DELETE FROM pdfs WHERE id=?", pdfID)
 	if err != nil {
 		return err
 	}

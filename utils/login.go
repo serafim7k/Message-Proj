@@ -14,7 +14,7 @@ func LoginHandler(db *sql.DB, tmpl *template.Template) http.HandlerFunc {
 			username := strings.ToLower(r.FormValue("username"))
 			password := r.FormValue("password")
 			var userID int
-			err := db.QueryRow("SELECT id FROM users WHERE LOWER(username) = $1 AND password = $2", username, password).Scan(&userID)
+			err := db.QueryRow("SELECT id FROM users WHERE LOWER(username) = ? AND password = ?", username, password).Scan(&userID)
 			if err != nil {
 				tmpl.ExecuteTemplate(w, "login.html", map[string]interface{}{"Error": "Invalid credentials"})
 				return

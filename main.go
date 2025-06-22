@@ -9,15 +9,15 @@ import (
 	"net/http"
 	"os"
 
-	// _ "github.com/go-sql-driver/mysql"
-	_ "github.com/lib/pq"
+	_ "modernc.org/sqlite" // Import the modernc.org/sqlite driver
 )
 
 var db *sql.DB
 
 func main() {
 	var err error
-	db, err = sql.Open("postgres", "host=localhost port=52431 user=postgres password=s361q94l dbname=myapp sslmode=disable")
+	// Connect to SQLite database using modernc.org/sqlite
+	db, err = sql.Open("sqlite", "./myapp.db") // Use "sqlite" as the driver name
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -42,46 +42,65 @@ func main() {
 		log.Fatal("Template parse error:", err)
 	}
 
+	// Create tables with SQLite syntax (INTEGER PRIMARY KEY AUTOINCREMENT)
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         username VARCHAR(255) NOT NULL UNIQUE,
         password VARCHAR(255) NOT NULL
     )`)
+	if err != nil {
+		log.Fatal(err)
+	}
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS messages (
-		id SERIAL PRIMARY KEY,
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		sender_id INT NOT NULL,
 		content TEXT NOT NULL,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY (sender_id) REFERENCES users(id)
 	)`)
+	if err != nil {
+		log.Fatal(err)
+	}
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS photos (
-		id SERIAL PRIMARY KEY,
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		sender_id INT NOT NULL,
 		filename VARCHAR(255) NOT NULL,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY (sender_id) REFERENCES users(id)
 	)`)
+	if err != nil {
+		log.Fatal(err)
+	}
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS videos (
-		id SERIAL PRIMARY KEY,
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		sender_id INT NOT NULL,
 		filename VARCHAR(255) NOT NULL,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY (sender_id) REFERENCES users(id)
 	)`)
+	if err != nil {
+		log.Fatal(err)
+	}
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS music (
-		id SERIAL PRIMARY KEY,
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		sender_id INT NOT NULL,
 		filename VARCHAR(255) NOT NULL,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY (sender_id) REFERENCES users(id)
 	)`)
+	if err != nil {
+		log.Fatal(err)
+	}
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS pdfs (
-		id SERIAL PRIMARY KEY,
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		sender_id INT NOT NULL,
 		filename VARCHAR(255) NOT NULL,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY (sender_id) REFERENCES users(id)
 	)`)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
@@ -146,7 +165,7 @@ func main() {
 		}
 		userID := cookie.Value
 		var username string
-		db.QueryRow("SELECT username FROM users WHERE id=$1", userID).Scan(&username)
+		db.QueryRow("SELECT username FROM users WHERE id=?", userID).Scan(&username)
 		isAdmin := utils.IsAdmin(db, userID)
 		if r.Method == "POST" {
 			content := r.FormValue("content")
@@ -181,7 +200,7 @@ func main() {
 			return
 		}
 		var username string
-		err = db.QueryRow("SELECT username FROM users WHERE id=$1", cookie.Value).Scan(&username)
+		err = db.QueryRow("SELECT username FROM users WHERE id=?", cookie.Value).Scan(&username)
 		if err != nil || username != "admin" {
 			http.Error(w, "Forbidden", http.StatusForbidden)
 			return
@@ -202,7 +221,7 @@ func main() {
 			return
 		}
 		var username string
-		err = db.QueryRow("SELECT username FROM users WHERE id=$1", cookie.Value).Scan(&username)
+		err = db.QueryRow("SELECT username FROM users WHERE id=?", cookie.Value).Scan(&username)
 		if err != nil || username != "admin" {
 			http.Error(w, "Forbidden", http.StatusForbidden)
 			return
@@ -223,9 +242,10 @@ func main() {
 			return
 		}
 		var username string
-		err = db.QueryRow("SELECT username FROM users WHERE id=$1", cookie.Value).Scan(&username)
+		err = db.QueryRow("SELECT username FROM users WHERE id = ?", cookie.Value).Scan(&username)
 		if err != nil || username != "admin" {
 			http.Error(w, "Forbidden", http.StatusForbidden)
+			log.Println(err)
 			return
 		}
 		if r.Method == "POST" {
@@ -245,7 +265,7 @@ func main() {
 		}
 		userID := cookie.Value
 		var username string
-		db.QueryRow("SELECT username FROM users WHERE id=$1", userID).Scan(&username)
+		db.QueryRow("SELECT username FROM users WHERE id=?", userID).Scan(&username)
 		isAdmin := utils.IsAdmin(db, userID)
 		if r.Method == "POST" {
 			r.ParseMultipartForm(10 << 20)
@@ -302,7 +322,7 @@ func main() {
 		}
 		userID := cookie.Value
 		var username string
-		db.QueryRow("SELECT username FROM users WHERE id=$1", userID).Scan(&username)
+		db.QueryRow("SELECT username FROM users WHERE id=?", userID).Scan(&username)
 		isAdmin := utils.IsAdmin(db, userID)
 		if r.Method == "POST" {
 			r.ParseMultipartForm(100 << 20)
@@ -359,7 +379,7 @@ func main() {
 		}
 		userID := cookie.Value
 		var username string
-		db.QueryRow("SELECT username FROM users WHERE id=$1", userID).Scan(&username)
+		db.QueryRow("SELECT username FROM users WHERE id=?", userID).Scan(&username)
 		isAdmin := utils.IsAdmin(db, userID)
 		if r.Method == "POST" {
 			r.ParseMultipartForm(20 << 20)
@@ -414,7 +434,7 @@ func main() {
 		}
 		userID := cookie.Value
 		var username string
-		db.QueryRow("SELECT username FROM users WHERE id=$1", userID).Scan(&username)
+		db.QueryRow("SELECT username FROM users WHERE id=?", userID).Scan(&username)
 		isAdmin := utils.IsAdmin(db, userID)
 		if r.Method == "POST" {
 			r.ParseMultipartForm(10 << 20)
@@ -485,7 +505,7 @@ func profileHandler(w http.ResponseWriter, r *http.Request, db *sql.DB, tmpl *te
 		return
 	}
 	var username string
-	err = db.QueryRow("SELECT username FROM users WHERE id=$1", cookie.Value).Scan(&username)
+	err = db.QueryRow("SELECT username FROM users WHERE id=?", cookie.Value).Scan(&username)
 	isAdmin := utils.IsAdmin(db, cookie.Value)
 	if err != nil {
 		http.Error(w, "Пользователь не найден", http.StatusInternalServerError)

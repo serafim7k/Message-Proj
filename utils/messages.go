@@ -12,7 +12,7 @@ type Message struct {
 }
 
 func AddMessage(db *sql.DB, senderID, content string) error {
-	_, err := db.Exec("INSERT INTO messages(sender_id, content) VALUES ($1, $2)", senderID, content)
+	_, err := db.Exec("INSERT INTO messages(sender_id, content) VALUES (?, ?)", senderID, content)
 	return err
 }
 
@@ -33,6 +33,6 @@ func GetAllMessages(db *sql.DB) ([]Message, error) {
 }
 
 func DeleteMessage(db *sql.DB, id string) error {
-	_, err := db.Exec("DELETE FROM messages WHERE id=$1", id)
+	_, err := db.Exec("DELETE FROM messages WHERE id=?", id)
 	return err
 }

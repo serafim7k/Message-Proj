@@ -14,7 +14,7 @@ func RegisterHandler(db *sql.DB, tmpl *template.Template) http.HandlerFunc {
 			username := strings.ToLower(r.FormValue("username"))
 			password := r.FormValue("password")
 			var exists int
-			err := db.QueryRow("SELECT COUNT(*) FROM users WHERE LOWER(username) = $1", username).Scan(&exists)
+			err := db.QueryRow("SELECT COUNT(*) FROM users WHERE LOWER(username) = ?", username).Scan(&exists)
 			if err != nil {
 				http.Error(w, "Database error", http.StatusInternalServerError)
 				return
@@ -23,7 +23,7 @@ func RegisterHandler(db *sql.DB, tmpl *template.Template) http.HandlerFunc {
 				tmpl.ExecuteTemplate(w, "register.html", map[string]interface{}{"Error": "Username taken"})
 				return
 			}
-			_, err = db.Exec("INSERT INTO users(username, password) VALUES ($1, $2)", username, password)
+			_, err = db.Exec("INSERT INTO users(username, password) VALUES (?, ?)", username, password)
 			if err != nil {
 				tmpl.ExecuteTemplate(w, "register.html", map[string]interface{}{"Error": "Registration error"})
 				return
