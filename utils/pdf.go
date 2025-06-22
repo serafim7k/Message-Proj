@@ -13,12 +13,12 @@ type PDF struct {
 }
 
 func AddPDF(db *sql.DB, senderID, filename string) error {
-	_, err := db.Exec("INSERT INTO pdfs(sender_id, filename) VALUES (?, ?)", senderID, filename)
+	_, err := db.Exec("INSERT INTO pdfs(sender_id, filename) VALUES ($1, $2)", senderID, filename)
 	return err
 }
 
 func GetAllPDFs(db *sql.DB) ([]PDF, error) {
-	rows, err := db.Query(`SELECT pdfs.id, pdfs.filename, pdfs.created_at, users.username FROM pdfs JOIN users ON pdfs.sender_id = users.id ORDER BY pdfs.created_at ASC`)
+	rows, err := db.Query(`SELECT p.id, p.filename, p.created_at, u.username FROM pdfs p JOIN users u ON p.sender_id = u.id ORDER BY p.id ASC`)
 	if err != nil {
 		return nil, err
 	}
@@ -35,11 +35,11 @@ func GetAllPDFs(db *sql.DB) ([]PDF, error) {
 
 func DeletePDF(db *sql.DB, pdfID string) error {
 	var filename string
-	err := db.QueryRow("SELECT filename FROM pdfs WHERE id=?", pdfID).Scan(&filename)
+	err := db.QueryRow("SELECT filename FROM pdfs WHERE id=$1", pdfID).Scan(&filename)
 	if err != nil {
 		return err
 	}
-	_, err = db.Exec("DELETE FROM pdfs WHERE id=?", pdfID)
+	_, err = db.Exec("DELETE FROM pdfs WHERE id=$1", pdfID)
 	if err != nil {
 		return err
 	}

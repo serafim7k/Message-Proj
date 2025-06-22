@@ -4,9 +4,9 @@
     <h1>Videos</h1>
     <div id="videos-list">
         {{range .Videos}}
-            <div class="video-item">
+            <div class="message-item{{if eq .Sender $.CurrentUser}} me{{end}}">
                 <span class="sender">{{.Sender}}:</span>
-                <video src="/uploads/videos/{{.Filename}}" controls style="max-width:320px;max-height:200px;display:block;margin:8px 0;"></video>
+                <video src="/uploads/videos/{{.Filename}}" controls class="msg-content" style="max-width:320px;max-height:200px;display:block;margin:8px 0;"></video>
                 <span class="msg-time">{{.CreatedAt}}</span>
                 {{if $.IsAdmin}}
                 <form action="/videos/delete" method="POST" style="display:inline; margin-left:10px;">

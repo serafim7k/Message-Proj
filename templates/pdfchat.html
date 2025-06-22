@@ -4,9 +4,9 @@
     <h1>PDF Chat</h1>
     <div id="pdf-list">
         {{range .PDFs}}
-            <div class="pdf-item">
+            <div class="message-item{{if eq .Sender $.CurrentUser}} me{{end}}">
                 <span class="sender">{{.Sender}}:</span>
-                <a href="/uploads/pdfs/{{.Filename}}" target="_blank">{{.Filename}}</a>
+                <a href="/uploads/pdfs/{{.Filename}}" target="_blank" class="msg-content">{{.Filename}}</a>
                 <span class="msg-time">{{.CreatedAt}}</span>
                 {{if $.IsAdmin}}
                 <form action="/pdfchat/delete" method="POST" style="display:inline; margin-left:10px;">

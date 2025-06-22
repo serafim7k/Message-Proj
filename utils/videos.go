@@ -13,12 +13,12 @@ type Video struct {
 }
 
 func AddVideo(db *sql.DB, senderID, filename string) error {
-	_, err := db.Exec("INSERT INTO videos(sender_id, filename) VALUES (?, ?)", senderID, filename)
+	_, err := db.Exec("INSERT INTO videos(sender_id, filename) VALUES ($1, $2)", senderID, filename)
 	return err
 }
 
 func GetAllVideos(db *sql.DB) ([]Video, error) {
-	rows, err := db.Query(`SELECT videos.id, videos.filename, videos.created_at, users.username FROM videos JOIN users ON videos.sender_id = users.id ORDER BY videos.created_at ASC`)
+	rows, err := db.Query(`SELECT v.id, v.filename, v.created_at, u.username FROM videos v JOIN users u ON v.sender_id = u.id ORDER BY v.id ASC`)
 	if err != nil {
 		return nil, err
 	}
@@ -35,11 +35,11 @@ func GetAllVideos(db *sql.DB) ([]Video, error) {
 
 func DeleteVideo(db *sql.DB, id string) error {
 	var filename string
-	err := db.QueryRow("SELECT filename FROM videos WHERE id=?", id).Scan(&filename)
+	err := db.QueryRow("SELECT filename FROM videos WHERE id=$1", id).Scan(&filename)
 	if err != nil {
 		return err
 	}
-	_, err = db.Exec("DELETE FROM videos WHERE id = ?", id)
+	_, err = db.Exec("DELETE FROM videos WHERE id=$1", id)
 	if err != nil {
 		return err
 	}

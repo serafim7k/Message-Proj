@@ -17,10 +17,10 @@
             <a href="/login-form">Login</a>
         {{else}}
             <a href="/profile">Profile</a>
+            {{if .IsAdmin}}
+                <a href="/admin">Admin</a>
+            {{end}}
             <a href="/logout">Logout</a>
-        {{end}}
-        {{if .IsAdmin}}
-            <a href="/admin">Admin</a>
         {{end}}
     </nav>
     <hr>

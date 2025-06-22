@@ -4,9 +4,12 @@
     <h1>Music</h1>
     <div id="music-list">
         {{range .Music}}
-            <div class="music-item">
+            <div class="message-item{{if eq .Sender $.CurrentUser}} me{{end}}">
                 <span class="sender">{{.Sender}}:</span>
-                <audio src="/uploads/music/{{.Filename}}" controls style="width:220px;display:block;margin:8px 0;"></audio>
+                <span class="msg-content">
+                    <audio src="/uploads/music/{{.Filename}}" controls style="width:400px;display:block;margin:8px 0;"></audio>
+                    <span style="font-size:0.98em;color:#888;">{{.Filename}}</span>
+                </span>
                 <span class="msg-time">{{.CreatedAt}}</span>
                 {{if $.IsAdmin}}
                 <form action="/music/delete" method="POST" style="display:inline; margin-left:10px;">

@@ -32,6 +32,6 @@ func DeleteUser(db *sql.DB, id string) error {
 
 func IsAdmin(db *sql.DB, userID string) bool {
 	var username string
-	err := db.QueryRow("SELECT username FROM users WHERE id=?", userID).Scan(&username)
+	err := db.QueryRow("SELECT username FROM users WHERE id=$1", userID).Scan(&username)
 	return err == nil && username == "admin"
 }

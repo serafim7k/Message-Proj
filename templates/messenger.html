@@ -4,7 +4,7 @@
     <h1>Messenger</h1>
     <div id="messages-list">
         {{range .Messages}}
-            <div class="message-item">
+            <div class="message-item{{if eq .Sender $.CurrentUser}} me{{end}}">
                 <span class="sender">{{.Sender}}:</span>
                 <span class="msg-content">{{.Content}}</span>
                 <span class="msg-time">{{.CreatedAt}}</span>

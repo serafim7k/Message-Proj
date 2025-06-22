@@ -5,31 +5,29 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"strings"
 )
 
 func LoginHandler(db *sql.DB, tmpl *template.Template) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == "POST" {
-			username := r.FormValue("username")
+		if r.Method == http.MethodPost {
+			username := strings.ToLower(r.FormValue("username"))
 			password := r.FormValue("password")
-			var id int
-			err := db.QueryRow("SELECT id FROM users WHERE username=? AND password=?", username, password).Scan(&id)
+			var userID int
+			err := db.QueryRow("SELECT id FROM users WHERE LOWER(username) = $1 AND password = $2", username, password).Scan(&userID)
 			if err != nil {
-				w.Header().Set("Content-Type", "text/html; charset=utf-8")
 				tmpl.ExecuteTemplate(w, "login.html", map[string]interface{}{"Error": "Invalid credentials"})
 				return
 			}
 			http.SetCookie(w, &http.Cookie{
-				Name:  "user_id",
-				Value: fmt.Sprint(id),
-				Path:  "/",
+				Name:   "user_id",
+				Value:  fmt.Sprint(userID),
+				Path:   "/",
+				MaxAge: 86400 * 30,
 			})
 			http.Redirect(w, r, "/profile", http.StatusSeeOther)
 			return
 		}
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		if err := tmpl.ExecuteTemplate(w, "login.html", nil); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
+		tmpl.ExecuteTemplate(w, "login.html", nil)
 	}
 }

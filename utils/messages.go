@@ -12,27 +12,27 @@ type Message struct {
 }
 
 func AddMessage(db *sql.DB, senderID, content string) error {
-	_, err := db.Exec("INSERT INTO messages(sender_id, content) VALUES (?, ?)", senderID, content)
+	_, err := db.Exec("INSERT INTO messages(sender_id, content) VALUES ($1, $2)", senderID, content)
 	return err
 }
 
 func GetAllMessages(db *sql.DB) ([]Message, error) {
-	rows, err := db.Query(`SELECT messages.id, messages.content, messages.created_at, users.username FROM messages JOIN users ON messages.sender_id = users.id ORDER BY messages.created_at ASC`)
+	rows, err := db.Query(`SELECT m.id, m.content, m.created_at, u.username FROM messages m JOIN users u ON m.sender_id = u.id ORDER BY m.id ASC`)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	var messages []Message
 	for rows.Next() {
-		var m Message
-		if err := rows.Scan(&m.ID, &m.Content, &m.CreatedAt, &m.Sender); err == nil {
-			messages = append(messages, m)
+		var msg Message
+		if err := rows.Scan(&msg.ID, &msg.Content, &msg.CreatedAt, &msg.Sender); err == nil {
+			messages = append(messages, msg)
 		}
 	}
 	return messages, nil
 }
 
 func DeleteMessage(db *sql.DB, id string) error {
-	_, err := db.Exec("DELETE FROM messages WHERE id = ?", id)
+	_, err := db.Exec("DELETE FROM messages WHERE id=$1", id)
 	return err
 }

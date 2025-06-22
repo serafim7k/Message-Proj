@@ -13,12 +13,12 @@ type Photo struct {
 }
 
 func AddPhoto(db *sql.DB, senderID, filename string) error {
-	_, err := db.Exec("INSERT INTO photos(sender_id, filename) VALUES (?, ?)", senderID, filename)
+	_, err := db.Exec("INSERT INTO photos(sender_id, filename) VALUES ($1, $2)", senderID, filename)
 	return err
 }
 
 func GetAllPhotos(db *sql.DB) ([]Photo, error) {
-	rows, err := db.Query(`SELECT photos.id, photos.filename, photos.created_at, users.username FROM photos JOIN users ON photos.sender_id = users.id ORDER BY photos.created_at ASC`)
+	rows, err := db.Query(`SELECT p.id, p.filename, p.created_at, u.username FROM photos p JOIN users u ON p.sender_id = u.id ORDER BY p.id ASC`)
 	if err != nil {
 		return nil, err
 	}
@@ -35,11 +35,11 @@ func GetAllPhotos(db *sql.DB) ([]Photo, error) {
 
 func DeletePhoto(db *sql.DB, id string) error {
 	var filename string
-	err := db.QueryRow("SELECT filename FROM photos WHERE id=?", id).Scan(&filename)
+	err := db.QueryRow("SELECT filename FROM photos WHERE id=$1", id).Scan(&filename)
 	if err != nil {
 		return err
 	}
-	_, err = db.Exec("DELETE FROM photos WHERE id = ?", id)
+	_, err = db.Exec("DELETE FROM photos WHERE id=$1", id)
 	if err != nil {
 		return err
 	}

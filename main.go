@@ -9,14 +9,15 @@ import (
 	"net/http"
 	"os"
 
-	_ "github.com/go-sql-driver/mysql"
+	// _ "github.com/go-sql-driver/mysql"
+	_ "github.com/lib/pq"
 )
 
 var db *sql.DB
 
 func main() {
 	var err error
-	db, err = sql.Open("mysql", "root:1root2@tcp(127.0.0.1:3306)/myapp")
+	db, err = sql.Open("postgres", "host=localhost port=52431 user=postgres password=s361q94l dbname=myapp sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -42,53 +43,54 @@ func main() {
 	}
 
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS users (
-        id INT AUTO_INCREMENT PRIMARY KEY,
+        id SERIAL PRIMARY KEY,
         username VARCHAR(255) NOT NULL UNIQUE,
         password VARCHAR(255) NOT NULL
     )`)
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS messages (
-		id INT AUTO_INCREMENT PRIMARY KEY,
+		id SERIAL PRIMARY KEY,
 		sender_id INT NOT NULL,
 		content TEXT NOT NULL,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY (sender_id) REFERENCES users(id)
 	)`)
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS photos (
-		id INT AUTO_INCREMENT PRIMARY KEY,
+		id SERIAL PRIMARY KEY,
 		sender_id INT NOT NULL,
 		filename VARCHAR(255) NOT NULL,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY (sender_id) REFERENCES users(id)
 	)`)
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS videos (
-		id INT AUTO_INCREMENT PRIMARY KEY,
+		id SERIAL PRIMARY KEY,
 		sender_id INT NOT NULL,
 		filename VARCHAR(255) NOT NULL,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY (sender_id) REFERENCES users(id)
 	)`)
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS music (
-		id INT AUTO_INCREMENT PRIMARY KEY,
+		id SERIAL PRIMARY KEY,
 		sender_id INT NOT NULL,
 		filename VARCHAR(255) NOT NULL,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY (sender_id) REFERENCES users(id)
 	)`)
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS pdfs (
-		id INT AUTO_INCREMENT PRIMARY KEY,
+		id SERIAL PRIMARY KEY,
 		sender_id INT NOT NULL,
 		filename VARCHAR(255) NOT NULL,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY (sender_id) REFERENCES users(id)
 	)`)
 
-	// Добавить пользователя admin, если его нет
-	_, err = db.Exec(`INSERT IGNORE INTO users(username, password) VALUES ('admin', 'dsa3hgkkh2138')`)
-
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+
 	http.Handle("/uploads/photos/", http.StripPrefix("/uploads/photos/", http.FileServer(http.Dir("uploads/photos"))))
+
 	http.Handle("/uploads/videos/", http.StripPrefix("/uploads/videos/", http.FileServer(http.Dir("uploads/videos"))))
+
 	http.Handle("/uploads/music/", http.StripPrefix("/uploads/music/", http.FileServer(http.Dir("uploads/music"))))
+
 	http.Handle("/uploads/pdfs/", http.StripPrefix("/uploads/pdfs/", http.FileServer(http.Dir("uploads/pdfs"))))
 
 	http.HandleFunc("/register-form", func(w http.ResponseWriter, r *http.Request) {
@@ -96,6 +98,7 @@ func main() {
 			http.Redirect(w, r, "/profile", http.StatusSeeOther)
 			return
 		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		utils.RegisterHandler(db, tmpl)(w, r)
 	})
 
@@ -104,6 +107,7 @@ func main() {
 			http.Redirect(w, r, "/profile", http.StatusSeeOther)
 			return
 		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		utils.LoginHandler(db, tmpl)(w, r)
 	})
 
@@ -142,7 +146,7 @@ func main() {
 		}
 		userID := cookie.Value
 		var username string
-		db.QueryRow("SELECT username FROM users WHERE id=?", userID).Scan(&username)
+		db.QueryRow("SELECT username FROM users WHERE id=$1", userID).Scan(&username)
 		isAdmin := utils.IsAdmin(db, userID)
 		if r.Method == "POST" {
 			content := r.FormValue("content")
@@ -162,7 +166,12 @@ func main() {
 			return
 		}
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		tmpl.ExecuteTemplate(w, "messenger.html", map[string]interface{}{"Messages": messages, "LoggedIn": true, "IsAdmin": isAdmin})
+		tmpl.ExecuteTemplate(w, "messenger.html", map[string]interface{}{
+			"Messages":    messages,
+			"LoggedIn":    true,
+			"IsAdmin":     isAdmin,
+			"CurrentUser": username,
+		})
 	})
 
 	http.HandleFunc("/messenger/delete", func(w http.ResponseWriter, r *http.Request) {
@@ -172,7 +181,7 @@ func main() {
 			return
 		}
 		var username string
-		err = db.QueryRow("SELECT username FROM users WHERE id=?", cookie.Value).Scan(&username)
+		err = db.QueryRow("SELECT username FROM users WHERE id=$1", cookie.Value).Scan(&username)
 		if err != nil || username != "admin" {
 			http.Error(w, "Forbidden", http.StatusForbidden)
 			return
@@ -193,7 +202,7 @@ func main() {
 			return
 		}
 		var username string
-		err = db.QueryRow("SELECT username FROM users WHERE id=?", cookie.Value).Scan(&username)
+		err = db.QueryRow("SELECT username FROM users WHERE id=$1", cookie.Value).Scan(&username)
 		if err != nil || username != "admin" {
 			http.Error(w, "Forbidden", http.StatusForbidden)
 			return
@@ -214,7 +223,7 @@ func main() {
 			return
 		}
 		var username string
-		err = db.QueryRow("SELECT username FROM users WHERE id=?", cookie.Value).Scan(&username)
+		err = db.QueryRow("SELECT username FROM users WHERE id=$1", cookie.Value).Scan(&username)
 		if err != nil || username != "admin" {
 			http.Error(w, "Forbidden", http.StatusForbidden)
 			return
@@ -235,6 +244,8 @@ func main() {
 			return
 		}
 		userID := cookie.Value
+		var username string
+		db.QueryRow("SELECT username FROM users WHERE id=$1", userID).Scan(&username)
 		isAdmin := utils.IsAdmin(db, userID)
 		if r.Method == "POST" {
 			r.ParseMultipartForm(10 << 20)
@@ -258,7 +269,12 @@ func main() {
 			return
 		}
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		tmpl.ExecuteTemplate(w, "photos.html", map[string]interface{}{"Photos": photos, "LoggedIn": true, "IsAdmin": isAdmin})
+		tmpl.ExecuteTemplate(w, "photos.html", map[string]interface{}{
+			"Photos":      photos,
+			"LoggedIn":    true,
+			"IsAdmin":     isAdmin,
+			"CurrentUser": username,
+		})
 	})
 
 	http.HandleFunc("/photos/delete", func(w http.ResponseWriter, r *http.Request) {
@@ -285,6 +301,8 @@ func main() {
 			return
 		}
 		userID := cookie.Value
+		var username string
+		db.QueryRow("SELECT username FROM users WHERE id=$1", userID).Scan(&username)
 		isAdmin := utils.IsAdmin(db, userID)
 		if r.Method == "POST" {
 			r.ParseMultipartForm(100 << 20)
@@ -308,7 +326,12 @@ func main() {
 			return
 		}
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		tmpl.ExecuteTemplate(w, "videos.html", map[string]interface{}{"Videos": videos, "LoggedIn": true, "IsAdmin": isAdmin})
+		tmpl.ExecuteTemplate(w, "videos.html", map[string]interface{}{
+			"Videos":      videos,
+			"LoggedIn":    true,
+			"IsAdmin":     isAdmin,
+			"CurrentUser": username,
+		})
 	})
 
 	http.HandleFunc("/videos/delete", func(w http.ResponseWriter, r *http.Request) {
@@ -335,6 +358,8 @@ func main() {
 			return
 		}
 		userID := cookie.Value
+		var username string
+		db.QueryRow("SELECT username FROM users WHERE id=$1", userID).Scan(&username)
 		isAdmin := utils.IsAdmin(db, userID)
 		if r.Method == "POST" {
 			r.ParseMultipartForm(20 << 20)
@@ -358,7 +383,12 @@ func main() {
 			return
 		}
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		tmpl.ExecuteTemplate(w, "music.html", map[string]interface{}{"Music": music, "LoggedIn": true, "IsAdmin": isAdmin})
+		tmpl.ExecuteTemplate(w, "music.html", map[string]interface{}{
+			"Music":       music,
+			"LoggedIn":    true,
+			"IsAdmin":     isAdmin,
+			"CurrentUser": username,
+		})
 	})
 
 	http.HandleFunc("/music/delete", func(w http.ResponseWriter, r *http.Request) {
@@ -383,6 +413,8 @@ func main() {
 			return
 		}
 		userID := cookie.Value
+		var username string
+		db.QueryRow("SELECT username FROM users WHERE id=$1", userID).Scan(&username)
 		isAdmin := utils.IsAdmin(db, userID)
 		if r.Method == "POST" {
 			r.ParseMultipartForm(10 << 20)
@@ -406,7 +438,12 @@ func main() {
 			return
 		}
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		tmpl.ExecuteTemplate(w, "pdfchat.html", map[string]interface{}{"PDFs": pdfs, "LoggedIn": true, "IsAdmin": isAdmin})
+		tmpl.ExecuteTemplate(w, "pdfchat.html", map[string]interface{}{
+			"PDFs":        pdfs,
+			"LoggedIn":    true,
+			"IsAdmin":     isAdmin,
+			"CurrentUser": username,
+		})
 	})
 
 	http.HandleFunc("/pdfchat/delete", func(w http.ResponseWriter, r *http.Request) {
@@ -448,7 +485,7 @@ func profileHandler(w http.ResponseWriter, r *http.Request, db *sql.DB, tmpl *te
 		return
 	}
 	var username string
-	err = db.QueryRow("SELECT username FROM users WHERE id=?", cookie.Value).Scan(&username)
+	err = db.QueryRow("SELECT username FROM users WHERE id=$1", cookie.Value).Scan(&username)
 	isAdmin := utils.IsAdmin(db, cookie.Value)
 	if err != nil {
 		http.Error(w, "Пользователь не найден", http.StatusInternalServerError)

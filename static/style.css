@@ -95,7 +95,7 @@ a:hover {
 
 /* Main content container styling */
 .content {
-    max-width: 520px;
+    max-width: 800px;
     margin: 48px auto 0 auto;
     background: rgba(255,255,255,0.98);
     border-radius: 18px;
@@ -294,6 +294,8 @@ footer {
     align-items: center;
     gap: 10px;
     font-size: 1.08em;
+    width: 100%;
+    min-width: 0;
 }
 .sender {
     color: #235390;
@@ -303,6 +305,8 @@ footer {
 .msg-content {
     flex: 1;
     color: #222;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 .msg-time {
     color: #b6c6e3;
@@ -334,14 +338,11 @@ footer {
     align-items: center;
     gap: 10px;
     font-size: 1.08em;
-}
-.user-name {
-    color: #235390;
-    font-weight: 600;
-    margin-right: 6px;
+    width: 100%;
+    min-width: 0;
 }
 
-.photo-item, .video-item {
+.photo-item, .video-item, .music-item, .pdf-item, .message-item, .user-item {
     background: #f7faff;
     border-radius: 7px;
     margin-bottom: 12px;
@@ -352,32 +353,34 @@ footer {
     gap: 6px;
     font-size: 1.08em;
     align-items: flex-start;
+    width: 100%;
+    min-width: 0;
 }
 
-.music-item {
-    background: #f7faff;
-    border-radius: 7px;
-    margin-bottom: 12px;
-    padding: 10px 14px;
-    box-shadow: 0 1px 4px rgba(36,41,47,0.06);
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    font-size: 1.08em;
-    align-items: flex-start;
+.message-item.me {
+    background: none;
+    border: none;
+    box-shadow: none;
 }
 
-.pdf-item {
-    background: #f7faff;
-    border-radius: 7px;
-    margin-bottom: 12px;
-    padding: 10px 14px;
-    box-shadow: 0 1px 4px rgba(36,41,47,0.06);
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    font-size: 1.08em;
-    align-items: flex-start;
+.message-item.me .sender {
+    color: #28a745;
+    font-weight: 700;
+}
+
+.photo-item.me, .video-item.me, .music-item.me, .pdf-item.me, .user-item.me {
+    background: none;
+    border: none;
+    box-shadow: none;
+}
+
+.photo-item.me .sender,
+.video-item.me .sender,
+.music-item.me .sender,
+.pdf-item.me .sender,
+.user-item.me .sender {
+    color: #28a745;
+    font-weight: 700;
 }
 
 /* Media queries for responsive design */

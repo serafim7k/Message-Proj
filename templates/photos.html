@@ -2,11 +2,11 @@
 {{template "header.html" .}}
 <div class="content">
     <h1>Photos</h1>
-    <div id="photos-list">
+    <div id="messages-list">
         {{range .Photos}}
-            <div class="photo-item">
+            <div class="message-item{{if eq .Sender $.CurrentUser}} me{{end}}">
                 <span class="sender">{{.Sender}}:</span>
-                <img src="/uploads/photos/{{.Filename}}" alt="photo" style="max-width:200px;max-height:200px;display:block;margin:8px 0;">
+                <img src="/uploads/photos/{{.Filename}}" alt="photo" class="msg-content" style="max-width:320px;max-height:200px;display:block;margin:8px 0;" />
                 <span class="msg-time">{{.CreatedAt}}</span>
                 {{if $.IsAdmin}}
                 <form action="/photos/delete" method="POST" style="display:inline; margin-left:10px;">
