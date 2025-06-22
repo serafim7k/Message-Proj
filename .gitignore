@@ -1,28 +1,27 @@
-# Бинарники Go
+# Binaries
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
-
-# Кэш Go
 *.test
+
+# Output of go build
+/build/
+bin/
 *.out
 
-# IDE/Editor
+# Dependency directories
+vendor/
+
+# IDE/editor files
 .vscode/
 .idea/
 *.swp
 
-# Базы данных
-*.db
-
-# Логи
-*.log
-
-# Загрузки пользователей
-uploads/
-
-# Системные файлы
+# OS generated files
 .DS_Store
 Thumbs.db
+
+# Uploaded files
+uploads/
